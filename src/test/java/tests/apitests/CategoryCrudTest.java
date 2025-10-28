@@ -3,12 +3,16 @@ package tests.apitests;
 import base.CategoryRepository;
 import base.MainBase;
 import base.PostCategoryMemberRepository;
-import base.PostRepository;
 import dto.request.CreateCategory;
 import dto.request.LinkCategoryRequest;
 import dto.request.UpdateCategory;
 import helper.BaseRequests;
 import helper.PropertyProvider;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Step;
+import io.qameta.allure.Story;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -19,6 +23,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
+@Epic("WordPress Platform")
+@Feature("Categories Manager")
 @Slf4j
 public class CategoryCrudTest extends BasicTest {
 
@@ -33,6 +39,7 @@ public class CategoryCrudTest extends BasicTest {
             .getProperty("wb.post.publisher.id"));
 
     @BeforeClass
+    @Step("Инициализация репозиториев и RestAssured спецификации")
     void init() {
         requestSpecification = BaseRequests.initRequestSpecification();
         MainBase base = new MainBase();
@@ -40,7 +47,9 @@ public class CategoryCrudTest extends BasicTest {
         postCategoryMemberRepository = new PostCategoryMemberRepository(base);
     }
 
-    @Test
+    @Test(description = "Создание категории")
+    @Story("Создание новой категории")
+    @Description("Проверяет успешное создание категории и её сохранение в БД")
     void create_category_positive() {
         var createRequest = new CreateCategory("QA Category", "qa-category");
 
@@ -63,7 +72,9 @@ public class CategoryCrudTest extends BasicTest {
         }
     }
 
-    @Test
+    @Test(description = "Переименование категории")
+    @Story("Редактирование категории")
+    @Description("Проверяет возможность переименования категории")
     void rename_category_positive() {
         var categoryBeforeUpdate = categoryRepository.getCategoryById(categoryEntityId);
         var beforeName = categoryBeforeUpdate.name();
@@ -91,7 +102,9 @@ public class CategoryCrudTest extends BasicTest {
         }
     }
 
-    @Test
+    @Test(description = "Привязка категории к посту")
+    @Story("Привязка категории к посту")
+    @Description("Проверяет успешное связывание категории и поста")
     void link_category_to_post_positive() {
         var linkCategoryRequest = new LinkCategoryRequest(String.valueOf(categoryEntityId));
         Integer postId = given()
@@ -108,7 +121,9 @@ public class CategoryCrudTest extends BasicTest {
         assertEquals(member.postId(), postId.longValue());
     }
 
-    @Test
+    @Test(description = "Удаление категории")
+    @Story("Удаление категории")
+    @Description("Проверяет возможность полного удаления категории из БД")
     void delete_category_positive() {
         var createRequest = new CreateCategory("Category for Delete", "bad category");
 
@@ -134,5 +149,4 @@ public class CategoryCrudTest extends BasicTest {
         assertNotNull(categoryBeforeDelete);
         assertNull(categoryAfterDelete);
     }
-
 }

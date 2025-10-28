@@ -6,6 +6,11 @@ import dto.request.CreateComment;
 import dto.request.UpdateStatusComment;
 import helper.BaseRequests;
 import helper.PropertyProvider;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Step;
+import io.qameta.allure.Story;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -14,6 +19,8 @@ import static io.restassured.RestAssured.given;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
+@Epic("WordPress Platform")
+@Feature("Comments Management")
 public class CommentCrudTest extends BasicTest {
 
     private CommentRepository commentRepository;
@@ -25,13 +32,16 @@ public class CommentCrudTest extends BasicTest {
             .getProperty("wb.commend.id"));
 
     @BeforeClass
+    @Step("Инициализация репозитория комментариев и RestAssured спецификации")
     void init() {
         requestSpecification = BaseRequests.initRequestSpecification();
         MainBase base = new MainBase();
         commentRepository = new CommentRepository(base);
     }
 
-    @Test
+    @Test(description = "Создание комментария")
+    @Story("Добавление комментариев к посту")
+    @Description("Проверяет возможность создания нового комментария и его наличие в БД")
     void create_comment_positive() {
         var createRequest = new CreateComment(postPublishId, "QA Bot", "qa@example.com", "Looks good today!");
 
@@ -56,7 +66,9 @@ public class CommentCrudTest extends BasicTest {
         }
     }
 
-    @Test
+    @Test(description = "Обновление статуса комментария на 'approve'")
+    @Story("Редактирование комментариев")
+    @Description("Проверяет обновление статуса комментария через API и возврат в исходное состояние")
     void update_status_comment_to_approve_positive() {
         var commentBeforeUpdate = commentRepository.getCommentById(holdCommentId);
         var statusBeforeUpdate = commentBeforeUpdate.commentApproved();

@@ -1,5 +1,6 @@
 package helper;
 
+import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.authentication.PreemptiveBasicAuthScheme;
 import io.restassured.builder.RequestSpecBuilder;
@@ -18,6 +19,7 @@ public class BaseRequests {
 
         return requestSpecBuilder
                 .setContentType(ContentType.JSON)
+                .addFilter(new AllureRestAssured())
                 .setBaseUri(PropertyProvider.getInstance().getProperty("wb.baseurl"))
                 .setAccept(ContentType.JSON)
                 .setAuth(basic)

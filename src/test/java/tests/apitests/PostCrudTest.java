@@ -8,6 +8,11 @@ import dto.request.UpdatePost;
 import dto.request.UpdateStatusPost;
 import helper.BaseRequests;
 import helper.PropertyProvider;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Step;
+import io.qameta.allure.Story;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -17,6 +22,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
+@Epic("WordPress Platform")
+@Feature("Posts Management")
 @Slf4j
 public class PostCrudTest extends BasicTest {
 
@@ -25,13 +32,16 @@ public class PostCrudTest extends BasicTest {
     private final int entityPostId = Integer.parseInt(PropertyProvider.getInstance().getProperty("wb.post.id"));
 
     @BeforeClass
+    @Step("Инициализация репозиториев и спецификации RestAssured")
     void init() {
         requestSpecification = BaseRequests.initRequestSpecification();
         MainBase base = new MainBase();
         postRepository = new PostRepository(base);
     }
 
-    @Test
+    @Test(description = "Создание поста")
+    @Story("Создание нового поста")
+    @Description("Проверяет успешное создание поста через API и наличие его в базе данных")
     void create_post_positive() {
         var createRequest = new CreatePost("SDET Post", "Hello new Post", "draft");
         Integer postId = given()
@@ -50,7 +60,9 @@ public class PostCrudTest extends BasicTest {
         assertEquals(post.postContent(), createRequest.content());
     }
 
-    @Test
+    @Test(description = "Обновление содержимого поста")
+    @Story("Редактирование поста")
+    @Description("Проверяет возможность обновления содержимого поста через API")
     void update_post_positive() {
         var updateRequest = new UpdatePost("Update Post now");
         Integer postId = given()
@@ -67,7 +79,9 @@ public class PostCrudTest extends BasicTest {
         assertEquals(post.postContent(), updateRequest.content());
     }
 
-    @Test
+    @Test(description = "Обновление статуса поста на 'publish'")
+    @Story("Изменение статуса поста")
+    @Description("Проверяет перевод поста в статус publish и возврат его в исходное состояние")
     void update_status_post_to_publisher_positive() {
         var postBefore = postRepository.getPostById(entityPostId);
         var beforeStatus = postBefore.postStatus();
@@ -98,7 +112,9 @@ public class PostCrudTest extends BasicTest {
         }
     }
 
-    @Test
+    @Test(description = "Удаление поста в корзину (trash)")
+    @Story("Мягкое удаление поста")
+    @Description("Проверяет, что при удалении поста без force он переводится в статус 'trash'")
     void delete_post_to_trash_positive() {
         var postBefore = postRepository.getPostById(entityPostId);
         var beforeStatus = postBefore.postStatus();
@@ -126,7 +142,9 @@ public class PostCrudTest extends BasicTest {
         }
     }
 
-    @Test
+    @Test(description = "Полное удаление поста")
+    @Story("Удаление поста без восстановления")
+    @Description("Проверяет успешное полное удаление поста через API и отсутствие его в базе")
     void delete_post_positive() {
         var createRequest = new CreatePost("Post for delete", "Very bad post", "draft");
         Integer postIdForDelete = given()
