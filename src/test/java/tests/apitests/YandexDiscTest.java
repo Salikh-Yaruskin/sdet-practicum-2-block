@@ -74,7 +74,7 @@ public class YandexDiscTest extends BasicTest {
     @Story("PUT upload → POST copy")
     @Description("Создаём папки input_data и output_data, загружаем data.txt по href, " +
             "копируем в output_data (ожидаем 201), затем повторяем копирование (ожидаем 409)")
-    void should_be_upload_file() {
+    void should_by_upload_file() {
         // предусловие: создание директорий
         YandexApiHelper.createFolder("/input_data");
         YandexApiHelper.createFolder("/output_data");
@@ -118,7 +118,7 @@ public class YandexDiscTest extends BasicTest {
     @Story("GET /v1/disk/resources/download → GET <href>")
     @Description("Получаем download href для sdet_data/data.txt и скачиваем по прямой ссылке." +
             "Сравниваем содержимое с файлом из ресурсов")
-    void should_download_file_equal_to_original() {
+    void should_by_download_file_equal_to_original() {
         // предусловие: создание директорий
         YandexApiHelper.createFolder("/sdet_data");
 
