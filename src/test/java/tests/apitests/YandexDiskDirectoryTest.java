@@ -10,6 +10,7 @@ import io.qameta.allure.Step;
 import io.qameta.allure.Story;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 import static helper.PropertyProvider.getInstance;
 import static io.restassured.RestAssured.given;
@@ -109,8 +110,9 @@ public class YandexDiskDirectoryTest extends BasicTest {
             var trashDirectories = YandexApiHelper.getTrashDirectories();
             boolean isExistsByName = isExistsByName(trashDirectories, directoryName);
 
-            assertEquals(countDirectoryAfter, countDirectoryBefore - 1);
-            assertTrue(isExistsByName);
+            SoftAssert softAssert = new SoftAssert();
+            softAssert.assertEquals(countDirectoryAfter, countDirectoryBefore - 1);
+            softAssert.assertTrue(isExistsByName);
         } finally {
             YandexApiHelper.deleteDirectoryInTrash(trashDirectoryPath(directoryName));
         }
