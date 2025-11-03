@@ -1,5 +1,6 @@
 package tests.apitests;
 
+import helper.PropertyProvider;
 import helper.YandexApiHelper;
 import helper.YandexApiRequests;
 import io.qameta.allure.Description;
@@ -10,7 +11,6 @@ import io.qameta.allure.Story;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,9 +18,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 
-import static helper.FileLoaderHelper.loadFile;
+import static helper.YandexApiHelper.getPathToFile;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.urlEncodingEnabled;
 import static org.hamcrest.Matchers.anyOf;
@@ -44,13 +43,15 @@ public class YandexDiscTest extends BasicTest {
     @Story("GET /v1/disk/ с валидным токеном")
     @Description("Отправляем GET, ожидаем код 200 и нужные поля")
     void should_by_auth_with_valid_token() {
+        var login = PropertyProvider.getInstance().getProperty("yandex.response.login");
+        var displayName = PropertyProvider.getInstance().getProperty("yandex.response.display-name");
         given()
                 .spec(requestSpecification)
                 .when().get("/v1/disk/")
                 .then().statusCode(200)
                 .body(
-                        "user.login", not(emptyOrNullString()),
-                        "user.display_name", not(emptyOrNullString())
+                        "user.login", equalTo(login),
+                        "user.display_name", equalTo(displayName)
                 );
     }
 
@@ -80,12 +81,8 @@ public class YandexDiscTest extends BasicTest {
         YandexApiHelper.createFolder("/output_data");
 
         // загрузка файла в input_data
-        URL url = Objects.requireNonNull(Thread.currentThread().getContextClassLoader()
-                .getResource("files/data.txt"));
-        File file = loadFile(url);
+        YandexApiHelper.loadFileToDirectory("files/data.txt", "/input_data/data.txt");
 
-        String href = YandexApiHelper.getUploadHref("/input_data/data.txt");
-        YandexApiHelper.putFileToHref(href, file);
 
         // копирование файла из input_data в output_data
         var copy = YandexApiHelper.copy("/input_data/data.txt", "/output_data/data.txt");
@@ -123,12 +120,7 @@ public class YandexDiscTest extends BasicTest {
         YandexApiHelper.createFolder("/sdet_data");
 
         // загрузка файла в sdet_data
-        URL url = Objects.requireNonNull(Thread.currentThread().getContextClassLoader()
-                .getResource("files/data.txt"));
-        File file = loadFile(url);
-
-        String href = YandexApiHelper.getUploadHref("/sdet_data/data.txt");
-        YandexApiHelper.putFileToHref(href, file);
+        YandexApiHelper.loadFileToDirectory("files/data.txt", "/sdet_data/data.txt");
 
         // получение ссылки для скачивания
         String downloadHref = given().spec(YandexApiRequests.initRequestSpecification())
@@ -153,7 +145,7 @@ public class YandexDiscTest extends BasicTest {
 
         // сравниваем содержимое
         String actual = new String(bytes, StandardCharsets.UTF_8);
-        String expected = expectFile(url);
+        String expected = expectFile(getPathToFile("files/data.txt"));
         assertEquals(actual, expected, "Содержимое файла не совпало");
 
         // постусловие: удаление директорий

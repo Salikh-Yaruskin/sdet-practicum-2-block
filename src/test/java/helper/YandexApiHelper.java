@@ -3,7 +3,10 @@ package helper;
 import io.restassured.response.Response;
 
 import java.io.File;
+import java.net.URL;
+import java.util.Objects;
 
+import static helper.FileLoaderHelper.loadFile;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
@@ -52,5 +55,19 @@ public class YandexApiHelper {
                 .queryParam("path", path)
                 .when().delete("delete/v1/disk/resources")
                 .then().statusCode(202);
+    }
+
+    public static void loadFileToDirectory(String pathFile, String pathDirectory) {
+        URL url = Objects.requireNonNull(Thread.currentThread().getContextClassLoader()
+                .getResource(pathFile));
+        File file = loadFile(url);
+
+        String href = YandexApiHelper.getUploadHref(pathDirectory);
+        YandexApiHelper.putFileToHref(href, file);
+    }
+
+    public static URL getPathToFile(String path) {
+        return Objects.requireNonNull(Thread.currentThread().getContextClassLoader()
+                .getResource(path));
     }
 }
