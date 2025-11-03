@@ -1,5 +1,6 @@
 package helper;
 
+import domain.api.Directories;
 import io.restassured.response.Response;
 
 import java.io.File;
@@ -69,5 +70,39 @@ public class YandexApiHelper {
     public static URL getPathToFile(String path) {
         return Objects.requireNonNull(Thread.currentThread().getContextClassLoader()
                 .getResource(path));
+    }
+
+    public static Directories getDirectories() {
+        return given().spec(YandexApiRequests.initRequestSpecification())
+                .when().get("/v1/disk/resources?path=disk:/&limit=1000&sort=name&fields=_embedded.items.name," +
+                        "_embedded.items.path")
+                .then().statusCode(200)
+                .extract().as(Directories.class);
+    }
+
+    public static void deleteDirectoryPermanently(String path) {
+        given().spec(YandexApiRequests.initRequestSpecification())
+                .when().delete("/v1/disk/resources?path=" + path + "&permanently=true")
+                .then().statusCode(anyOf(is(202), is(204)));
+    }
+
+    public static void deleteDirectoryToTrash(String path) {
+        given().spec(YandexApiRequests.initRequestSpecification())
+                .when().delete("/v1/disk/resources?path=" + path + "&permanently=false")
+                .then().statusCode(anyOf(is(202), is(204)));
+    }
+
+        public static void deleteDirectoryInTrash(String path) {
+        given().spec(YandexApiRequests.initRequestSpecification())
+                .when().delete("/v1/disk/trash/resources?path=" + path)
+                .then().statusCode(anyOf(is(202), is(204)));
+    }
+
+    public static Directories getTrashDirectories() {
+        return given().spec(YandexApiRequests.initRequestSpecification())
+                    .when().get("/v1/disk/trash/resources?path=trash:/&limit=1000&fields=_embedded.items.name," +
+                        "_embedded.items.path")
+                .then().statusCode(200)
+                .extract().as(Directories.class);
     }
 }
