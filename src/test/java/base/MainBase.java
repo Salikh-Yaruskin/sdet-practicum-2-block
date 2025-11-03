@@ -1,9 +1,10 @@
 package base;
 
+import com.zaxxer.hikari.HikariDataSource;
 import helper.PropertyProvider;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -21,9 +22,11 @@ public class MainBase {
     private static String username = PropertyProvider.getInstance().getProperty("db.user");
     private static String password = PropertyProvider.getInstance().getProperty("db.password");
 
+    private static final DataSource dataSource = createDataSource();
+
     public static void getPostById(Integer id) {
         String getPostById = "select ID, post_title from wp_posts where ID = ?";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(getPostById)) {
             preparedStatement.setInt(1, id);
 
@@ -40,7 +43,7 @@ public class MainBase {
     }
 
     public Map<String, Object> row(String sql, Object... params) {
-        try (Connection connection = DriverManager.getConnection(url, username, password);
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = prepare(connection, sql, params);
              ResultSet rs = preparedStatement.executeQuery()) {
 
@@ -54,7 +57,7 @@ public class MainBase {
     }
 
     public Long insertAndGetId(String sql, Object... params) {
-        try (Connection connection = DriverManager.getConnection(url, username, password);
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             if (nonNull(params)) {
                 for (int i = 0; i < params.length; i++) {
@@ -74,7 +77,7 @@ public class MainBase {
     }
 
     public void update(String sql, Object... params) {
-        try (Connection connection = DriverManager.getConnection(url, username, password);
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = prepare(connection, sql, params)) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -107,5 +110,13 @@ public class MainBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static DataSource createDataSource() {
+        HikariDataSource hd = new HikariDataSource();
+        hd.setJdbcUrl(url);
+        hd.setUsername(username);
+        hd.setPassword(password);
+        return hd;
     }
 }
