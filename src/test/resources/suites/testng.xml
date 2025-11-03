@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="API Suite parallel method" parallel="methods" thread-count="6">
+    <test name="Parallel Yandex Disk API tests">
+        <classes>
+            <class name="tests.apitests.YandexDiskDirectoryTest"></class>
+            <class name="tests.apitests.YandexDiscTest"></class>
+        </classes>
+    </test>
+    <test name="Parallel WordPress tests">
+        <classes>
+            <class name="tests.apitests.CategoryCrudTest"></class>
+            <class name="tests.apitests.PostCrudTest"></class>
+            <class name="tests.apitests.DataSelectTest"></class>
+            <class name="tests.apitests.CommentCrudTest"></class>
+        </classes>
+    </test>
+</suite>

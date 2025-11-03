@@ -83,7 +83,8 @@ public class PostCrudTest extends BasicTest {
     @Story("Изменение статуса поста")
     @Description("Проверяет перевод поста в статус publish и возврат его в исходное состояние")
     void update_status_post_to_publisher_positive() {
-        var postBefore = postRepository.getPostById(entityPostId);
+        Integer newPostId = createNewPost();
+        var postBefore = postRepository.getPostById(newPostId);
         var beforeStatus = postBefore.postStatus();
 
         var updateStatusPost = new UpdateStatusPost(PostStatus.PUBLISH.toString().toLowerCase());
@@ -93,7 +94,7 @@ public class PostCrudTest extends BasicTest {
                     .spec(requestSpecification)
                     .body(updateStatusPost)
                     .when()
-                    .post("/posts/" + entityPostId)
+                    .post("/posts/" + newPostId)
                     .then()
                     .statusCode(200)
                     .extract().path("id");
@@ -168,5 +169,16 @@ public class PostCrudTest extends BasicTest {
 
         assertNotNull(postBeforeDelete);
         assertNull(postAfterDelete);
+    }
+
+    private Integer createNewPost() {
+        return given()
+                .spec(requestSpecification)
+                .body(new CreatePost("Temp Post", "Content", "draft"))
+                .when()
+                .post("/posts")
+                .then()
+                .statusCode(201)
+                .extract().path("id");
     }
 }

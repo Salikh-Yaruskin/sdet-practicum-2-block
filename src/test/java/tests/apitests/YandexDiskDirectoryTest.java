@@ -12,11 +12,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
+import java.util.UUID;
+
 import static helper.PropertyProvider.getInstance;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -34,7 +35,7 @@ public class YandexDiskDirectoryTest extends BasicTest {
     @Description("Проверяет, что при валидном токене " +
             "вызов PUT /v1/disk/resources?path=disk:/demo/folderA создаёт новую директорию")
     void givenValidToken_whenCreateDirectory_thenReturn200() {
-        var directoryName = getInstance().getProperty("yandex.api.directory");
+        var directoryName = getInstance().getProperty("yandex.api.directory") + UUID.randomUUID();
         try {
             given().spec(requestSpecification)
                     .when().put("/v1/disk/resources?path=" + directoryName)
@@ -54,7 +55,7 @@ public class YandexDiskDirectoryTest extends BasicTest {
     @Description("Проверяет, что при попытке создать уже существующую директорию API возвращает 409 Conflict, " +
             "а дубликат не создаётся")
     void givenValidToken_whenCreateSameDirectory_whenReturn409() {
-        var directoryName = getInstance().getProperty("yandex.api.directory");
+        var directoryName = getInstance().getProperty("yandex.api.directory") + UUID.randomUUID();
 
         try {
             // Предусловия: создание директории
@@ -74,7 +75,7 @@ public class YandexDiskDirectoryTest extends BasicTest {
     @Description("Проверяет, что при отсутствии токена " +
             "вызов PUT /v1/disk/resources возвращает 401 Unauthorized.")
     void givenNoToken_whenCreateDirectory_thenReturn401() {
-        var directoryName = getInstance().getProperty("yandex.api.directory");
+        var directoryName = getInstance().getProperty("yandex.api.directory") + UUID.randomUUID();
         given()
                 .when().put("https://cloud-api.yandex.net/v1/disk/resources?path=" + directoryName)
                 .then().statusCode(401);
@@ -90,8 +91,9 @@ public class YandexDiskDirectoryTest extends BasicTest {
     @Description("Проверяет, что при удалении без параметра permanently=true " +
             "папка перемещается в корзину")
     void givenValidTokenExistsDirectory_whenDeleteDirectoryInTrash_thenReturn204() {
-        var directoryPath = getInstance().getProperty("yandex.api.directory");
-        var directoryName = getInstance().getProperty("yandex.api.directory.name");
+        var uuid = UUID.randomUUID().toString();
+        var directoryPath = getInstance().getProperty("yandex.api.directory") + uuid;
+        var directoryName = getInstance().getProperty("yandex.api.directory.name") + uuid;
 
         try {
             // Предусловия: создание директории
@@ -123,8 +125,9 @@ public class YandexDiskDirectoryTest extends BasicTest {
     @Description("Проверяет, что при удалении с параметром permanently=true " +
             "ресурс удаляется без помещения в корзину и возвращается код 204 No Content.")
     void givenValidToken_whenDeleteDirectoryPermanently_thenReturn204() {
-        var directoryPath = getInstance().getProperty("yandex.api.directory");
-        var directoryName = getInstance().getProperty("yandex.api.directory.name");
+        var uuid = UUID.randomUUID().toString();
+        var directoryPath = getInstance().getProperty("yandex.api.directory") + uuid;
+        var directoryName = getInstance().getProperty("yandex.api.directory.name") + uuid;
 
         // Предусловия: создание директории
         createDirectory(directoryPath);
@@ -143,7 +146,7 @@ public class YandexDiskDirectoryTest extends BasicTest {
     @Description("Проверяет, что при попытке удалить несуществующий ресурс " +
             "возвращается ошибка 404 Not Found")
     void givenValidTokenNonexistentFolder_whenDelete_thenReturn404() {
-        var directoryNoExistsPath = getInstance().getProperty("yandex.api.directory.no-exists");
+        var directoryNoExistsPath = getInstance().getProperty("yandex.api.directory.no-exists") + UUID.randomUUID();
 
         given().spec(YandexApiRequests.initRequestSpecification())
                 .when().delete("/v1/disk/resources?path=" + directoryNoExistsPath)
@@ -155,8 +158,9 @@ public class YandexDiskDirectoryTest extends BasicTest {
     @Description("Проверяет, что вызов PUT /v1/disk/trash/resources/restore?path=trash:/folderA " +
             "успешно восстанавливает удалённую директорию и удаляет её из корзины")
     void givenValidToken_whenRestore_thenReturn201() {
-        var directoryPath = getInstance().getProperty("yandex.api.directory");
-        var directoryName = getInstance().getProperty("yandex.api.directory.name");
+        var uuid = UUID.randomUUID().toString();
+        var directoryPath = getInstance().getProperty("yandex.api.directory") + uuid;
+        var directoryName = getInstance().getProperty("yandex.api.directory.name") + uuid;
 
         try {
 
