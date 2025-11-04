@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Files lists schema",
+  "description": "Yandex Disk files lists schema",
+  "type": "object",
+  "properties": {
+    "limit": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "offset": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "items": {
+      "type": "array",
+      "minimum": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^disk:/.*",
+            "minLength": 5,
+            "maxLength": 500
+          },
+          "type": {
+            "type": "string",
+            "enum": ["file"]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "mime_type": {
+            "type": "string",
+            "pattern": "^[a-z]+/[a-z0-9\\-\\\\.+]+$"
+          },
+          "md5": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "preview": {
+            "type": "string",
+            "format": "uri"
+          },
+          "media_type": {
+            "type": "string",
+            "enum": ["image", "video", "document", "audio", "compressed"]
+          },
+          "sizes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "pattern": "^https://"
+                },
+                "name": {
+                  "type": "string",
+                  "pattern": "^[A-Z0-9]+$"
+                }
+              },
+              "required": ["url", "name"]
+            }
+          },
+          "resource_id": {
+            "type": "string",
+            "pattern": "^[0-9:]+[a-f0-9]{64}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "comment_ids": {
+            "type": "object",
+            "properties": {
+              "public_resource": {
+                "type": "string",
+                "pattern": "^[0-9:]+[a-f0-9]{64}$"
+              },
+              "private_resource": {
+                "type": "string",
+                "pattern": "^[0-9:]+[a-f0-9]{64}$"
+              }
+            },
+            "required": ["public_resource", "private_resource"]
+          },
+          "exif": {
+            "type": "object"
+          },
+          "antivirus_status": {
+            "type": "string",
+            "enum": ["clean", "infected", "unknown"]
+          },
+          "file": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          }
+        },
+        "required": [
+          "path", "type", "name", "created", "modified",
+          "size", "mime_type", "md5", "sha256",
+          "media_type", "resource_id", "revision", "comment_ids"
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": ["limit", "offset", "items"],
+  "additionalProperties": false
+}

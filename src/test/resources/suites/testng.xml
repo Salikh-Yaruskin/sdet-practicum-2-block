@@ -5,6 +5,7 @@
         <classes>
             <class name="tests.apitests.YandexDiskDirectoryTest"></class>
             <class name="tests.apitests.YandexDiscTest"></class>
+            <class name="tests.apitests.YandexDiskFilesTest"></class>
         </classes>
     </test>
     <test name="Parallel WordPress tests">
