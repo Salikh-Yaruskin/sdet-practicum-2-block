@@ -5,8 +5,13 @@ pipeline {
     stage('Test') { steps { sh 'mvn -U -q test' } }
   }
   post {
-    always {
-      junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
+      always {
+        archiveArtifacts artifacts: 'target/allure-results/**', allowEmptyArchive: true
+          allure([
+          includeProperties: false,
+          jdk: '',
+          results: [[path: 'target/allure-results']]
+        ])
+      }
     }
-  }
 }
