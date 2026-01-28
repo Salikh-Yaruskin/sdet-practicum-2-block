@@ -178,6 +178,12 @@ public class YandexDiskDirectoryTest extends BasicTest {
         }
     }
 
+    @Test
+    @Story("Пустой тест")
+    void voidTest_checkJenkins() {
+        int sum = 10 + 5;
+        assertEquals(sum, 15);
+    }
     private boolean isExistsByPath(Directories directories, String directoryName) {
         return directories.getEmbedded().getItems().stream()
                 .map(Item::getPath)
