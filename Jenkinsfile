@@ -35,23 +35,23 @@ pipeline {
         results: [[path: 'target/allure-results']]
       ])
 
-      emailext(
+     emailext(
         to: 'tofatty@gmail.com',
         subject: "Autotests: ${JOB_NAME} #${BUILD_NUMBER} — ${BUILD_STATUS}",
         mimeType: 'text/html',
-        body: """
+        body: '''
           <h3>Autotest results</h3>
           <p><b>Job:</b> ${JOB_NAME}</p>
           <p><b>Build:</b> #${BUILD_NUMBER}</p>
           <p><b>Status:</b> ${BUILD_STATUS}</p>
-
+      
           <p><b>Tests:</b><br>
             Total: ${TEST_COUNTS,var="total"}<br>
             Passed: ${TEST_COUNTS,var="pass"}<br>
             Failed: ${TEST_COUNTS,var="fail"}<br>
             Skipped: ${TEST_COUNTS,var="skip"}
           </p>
-        """,
+        ''',
         attachmentsPattern: 'allure-report.tgz'
       )
     }
