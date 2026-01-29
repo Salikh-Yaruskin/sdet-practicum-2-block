@@ -3,6 +3,11 @@ pipeline {
   tools {
     maven 'maven'
   }
+
+  triggers {
+      cron('0 9 * * *')
+    }
+
   stages {
     stage('Test') { 
       steps { 
