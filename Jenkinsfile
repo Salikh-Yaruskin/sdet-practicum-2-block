@@ -52,7 +52,7 @@ pipeline {
           </p>
           """,
           mimeType: 'text/html',
-          to: 'ТВОЙ_EMAIL@example.com',
+          to: 'tofatty33@gmail.com',
           attachmentsPattern: 'allure-report.tgz'
         )
       }
