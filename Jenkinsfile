@@ -24,36 +24,46 @@ pipeline {
 
   post {
     always {
-      junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
-
-      archiveArtifacts artifacts: 'target/allure-results/**', allowEmptyArchive: true
-      archiveArtifacts artifacts: 'target/allure-report/**',  allowEmptyArchive: true
-      archiveArtifacts artifacts: 'allure-report.tgz',        allowEmptyArchive: true
+      junit 'target/surefire-reports/*.xml'
+  
+      script {
+        def testResult = currentBuild.rawBuild.getAction(hudson.tasks.junit.TestResultAction)
+  
+        def total   = testResult?.totalCount ?: 0
+        def failed  = testResult?.failCount ?: 0
+        def skipped = testResult?.skipCount ?: 0
+        def passed  = total - failed - skipped
+  
+        def status = currentBuild.currentResult
+  
+        emailext(
+          subject: "Jenkins: ${env.JOB_NAME} #${env.BUILD_NUMBER} — ${status}",
+          body: """
+          <h2>Результаты автотестов</h2>
+          <p><b>Статус сборки:</b> ${status}</p>
+          <ul>
+            <li>Всего тестов: ${total}</li>
+            <li>Пройдено: ${passed}</li>
+            <li>Упало: ${failed}</li>
+            <li>Пропущено: ${skipped}</li>
+          </ul>
+          <p>
+            <a href="${env.BUILD_URL}allure/">Allure Report</a>
+          </p>
+          """,
+          mimeType: 'text/html',
+          to: 'ТВОЙ_EMAIL@example.com',
+          attachmentsPattern: 'allure-report.tgz'
+        )
+      }
+  
+      archiveArtifacts artifacts: 'target/allure-results/**, allure-report.tgz', allowEmptyArchive: true
+  
       allure([
         includeProperties: false,
         jdk: '',
         results: [[path: 'target/allure-results']]
       ])
-
-     emailext(
-        to: 'tofatty@gmail.com',
-        subject: "Autotests: ${JOB_NAME} #${BUILD_NUMBER} — ${BUILD_STATUS}",
-        mimeType: 'text/html',
-        body: '''
-          <h3>Autotest results</h3>
-          <p><b>Job:</b> ${JOB_NAME}</p>
-          <p><b>Build:</b> #${BUILD_NUMBER}</p>
-          <p><b>Status:</b> ${BUILD_STATUS}</p>
-      
-          <p><b>Tests:</b><br>
-            Total: ${TEST_COUNTS,var="total"}<br>
-            Passed: ${TEST_COUNTS,var="pass"}<br>
-            Failed: ${TEST_COUNTS,var="fail"}<br>
-            Skipped: ${TEST_COUNTS,var="skip"}
-          </p>
-        ''',
-        attachmentsPattern: 'allure-report.tgz'
-      )
     }
   }
 }
