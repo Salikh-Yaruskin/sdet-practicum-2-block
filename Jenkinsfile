@@ -24,39 +24,17 @@ pipeline {
 
   post {
     always {
+       mail to: 'aswin@crunchops.com',
+                 subject: "Jenkins Build Notification: ${currentBuild.fullDisplayName}",
+                 body: """\
+                 Build Status: ${currentBuild.currentResult}
+                 Project: ${env.JOB_NAME}
+                 Build Number: ${env.BUILD_NUMBER}
+                 Build URL: ${env.BUILD_URL}
+                 """
       junit 'target/surefire-reports/*.xml'
   
       script {
-        def testResult = currentBuild.rawBuild.getAction(hudson.tasks.junit.TestResultAction)
-  
-        def total   = testResult?.totalCount ?: 0
-        def failed  = testResult?.failCount ?: 0
-        def skipped = testResult?.skipCount ?: 0
-        def passed  = total - failed - skipped
-  
-        def status = currentBuild.currentResult
-  
-        emailext(
-          subject: "Jenkins: ${env.JOB_NAME} #${env.BUILD_NUMBER} — ${status}",
-          body: """
-          <h2>Результаты автотестов</h2>
-          <p><b>Статус сборки:</b> ${status}</p>
-          <ul>
-            <li>Всего тестов: ${total}</li>
-            <li>Пройдено: ${passed}</li>
-            <li>Упало: ${failed}</li>
-            <li>Пропущено: ${skipped}</li>
-          </ul>
-          <p>
-            <a href="${env.BUILD_URL}allure/">Allure Report</a>
-          </p>
-          """,
-          mimeType: 'text/html',
-          to: 'tofatty33@gmail.com',
-          attachmentsPattern: 'allure-report.tgz'
-        )
-      }
-  
       archiveArtifacts artifacts: 'target/allure-results/**, allure-report.tgz', allowEmptyArchive: true
   
       allure([
