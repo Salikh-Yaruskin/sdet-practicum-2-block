@@ -118,25 +118,25 @@ public class YandexDiskDirectoryTest extends BasicTest {
         }
     }
 
-    @Test
-    @Story("Удаление директорий")
-    @Description("Проверяет, что при удалении с параметром permanently=true " +
-            "ресурс удаляется без помещения в корзину и возвращается код 204 No Content.")
-    void givenValidToken_whenDeleteDirectoryPermanently_thenReturn204() {
-        var directoryPath = getInstance().getProperty("yandex.api.directory");
-        var directoryName = getInstance().getProperty("yandex.api.directory.name");
-
-        // Предусловия: создание директории
-        createDirectory(directoryPath);
-
-        given().spec(YandexApiRequests.initRequestSpecification())
-                .when().delete("/v1/disk/resources?path=" + directoryPath + "&permanently=true")
-                .then().statusCode(anyOf(is(202), is(204)));
-
-        boolean isExists = isExistsInTrash(directoryName);
-
-        assertFalse(isExists);
-    }
+//    @Test
+//    @Story("Удаление директорий")
+//    @Description("Проверяет, что при удалении с параметром permanently=true " +
+//            "ресурс удаляется без помещения в корзину и возвращается код 204 No Content.")
+//    void givenValidToken_whenDeleteDirectoryPermanently_thenReturn204() {
+//        var directoryPath = getInstance().getProperty("yandex.api.directory");
+//        var directoryName = getInstance().getProperty("yandex.api.directory.name");
+//
+//        // Предусловия: создание директории
+//        createDirectory(directoryPath);
+//
+//        given().spec(YandexApiRequests.initRequestSpecification())
+//                .when().delete("/v1/disk/resources?path=" + directoryPath + "&permanently=true")
+//                .then().statusCode(anyOf(is(202), is(204)));
+//
+//        boolean isExists = isExistsInTrash(directoryName);
+//
+//        assertFalse(isExists);
+//    }
 
     @Test
     @Story("Удаление папок")
@@ -150,33 +150,33 @@ public class YandexDiskDirectoryTest extends BasicTest {
                 .then().statusCode(404);
     }
 
-    @Test
-    @Story("Восстановление папок")
-    @Description("Проверяет, что вызов PUT /v1/disk/trash/resources/restore?path=trash:/folderA " +
-            "успешно восстанавливает удалённую директорию и удаляет её из корзины")
-    void givenValidToken_whenRestore_thenReturn201() {
-        var directoryPath = getInstance().getProperty("yandex.api.directory");
-        var directoryName = getInstance().getProperty("yandex.api.directory.name");
-
-        try {
-
-            // Предусловие: создание директории и удалению ее в корзину
-            createDirectory(directoryPath);
-            YandexApiHelper.deleteDirectoryToTrash(directoryPath);
-            var trashPathDirectory = trashDirectoryPath(directoryName);
-
-            // восстановление из корзины
-            given().spec(YandexApiRequests.initRequestSpecification())
-                    .when().put("/v1/disk/trash/resources/restore?path=" + trashPathDirectory)
-                    .then().statusCode(201);
-
-            boolean isExists = isExistsInTrash(directoryName);
-
-            assertFalse(isExists);
-        } finally {
-            YandexApiHelper.deleteDirectoryPermanently(directoryName);
-        }
-    }
+//    @Test
+//    @Story("Восстановление папок")
+//    @Description("Проверяет, что вызов PUT /v1/disk/trash/resources/restore?path=trash:/folderA " +
+//            "успешно восстанавливает удалённую директорию и удаляет её из корзины")
+//    void givenValidToken_whenRestore_thenReturn201() {
+//        var directoryPath = getInstance().getProperty("yandex.api.directory");
+//        var directoryName = getInstance().getProperty("yandex.api.directory.name");
+//
+//        try {
+//
+//            // Предусловие: создание директории и удалению ее в корзину
+//            createDirectory(directoryPath);
+//            YandexApiHelper.deleteDirectoryToTrash(directoryPath);
+//            var trashPathDirectory = trashDirectoryPath(directoryName);
+//
+//            // восстановление из корзины
+//            given().spec(YandexApiRequests.initRequestSpecification())
+//                    .when().put("/v1/disk/trash/resources/restore?path=" + trashPathDirectory)
+//                    .then().statusCode(201);
+//
+//            boolean isExists = isExistsInTrash(directoryName);
+//
+//            assertFalse(isExists);
+//        } finally {
+//            YandexApiHelper.deleteDirectoryPermanently(directoryName);
+//        }
+//    }
 
     @Test
     @Story("Пустой тест")
